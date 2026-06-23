@@ -1,0 +1,44 @@
+@startuml state
+title Patron STATE - Ciclo de vida del Pedido
+skinparam backgroundColor #FFFFFF
+
+class Pedido {
+  -estado: EstadoPedido
+  +comenzarPreparacion()
+  +marcarListo()
+  +entregar()
+  +cancelar()
+  +cambiarEstado(EstadoPedido)
+}
+
+interface EstadoPedido {
+  +getNombre(): String
+  +comenzarPreparacion(Pedido)
+  +marcarListo(Pedido)
+  +entregar(Pedido)
+  +cancelar(Pedido)
+  +accionesPermitidas(): List
+}
+
+abstract class EstadoBase {
+  #noPermitido(accion)
+}
+class PendienteState
+class EnPreparacionState
+class ListoState
+class EntregadoState
+class CanceladoState
+
+Pedido o--> "1" EstadoPedido : estado actual
+EstadoPedido <|.. EstadoBase
+EstadoBase <|-- PendienteState
+EstadoBase <|-- EnPreparacionState
+EstadoBase <|-- ListoState
+EstadoBase <|-- EntregadoState
+EstadoBase <|-- CanceladoState
+
+note bottom of EstadoBase
+  EstadoBase lanza "no permitido" por defecto.
+  Cada estado solo sobreescribe sus transiciones validas.
+end note
+@enduml

@@ -1,0 +1,35 @@
+@startuml observer
+title Patron OBSERVER - Cambios de estado del Pedido
+skinparam backgroundColor #FFFFFF
+
+class Pedido {
+  -observadores: List<ObservadorPedido>
+  +agregarObservador(ObservadorPedido)
+  +cambiarEstado(EstadoPedido)
+  -notificarObservadores()
+}
+
+interface ObservadorPedido {
+  +actualizar(Pedido)
+}
+
+class PantallaCocina {
+  +getComandasActivas()
+}
+class NotificadorCliente {
+  +getMensajes()
+}
+class PanelEstadisticas {
+  +getConteoPorEstado()
+}
+
+Pedido o--> "*" ObservadorPedido : observadores
+ObservadorPedido <|.. PantallaCocina
+ObservadorPedido <|.. NotificadorCliente
+ObservadorPedido <|.. PanelEstadisticas
+
+note bottom of ObservadorPedido
+  Al cambiar de estado, el Pedido (Subject) notifica
+  a todos sus observadores sin conocer su clase concreta.
+end note
+@enduml

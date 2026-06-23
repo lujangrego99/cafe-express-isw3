@@ -1,0 +1,48 @@
+@startuml decorator
+title Patron DECORATOR - Bebidas con adicionales
+skinparam backgroundColor #FFFFFF
+
+interface Bebida {
+  +getDescripcion(): String
+  +getCosto(): double
+}
+
+abstract class BebidaBase {
+  -nombre: String
+  -precioBase: double
+}
+class Espresso
+class Americano
+class Latte
+class Capuchino
+class TeChai
+
+abstract class AdicionalDecorator {
+  #bebida: Bebida
+}
+class ShotExtra
+class CremaBatida
+class JarabeVainilla
+class LecheVegetal
+class SalsaCaramelo
+
+Bebida <|.. BebidaBase
+BebidaBase <|-- Espresso
+BebidaBase <|-- Americano
+BebidaBase <|-- Latte
+BebidaBase <|-- Capuchino
+BebidaBase <|-- TeChai
+
+Bebida <|.. AdicionalDecorator
+AdicionalDecorator o--> "1" Bebida : envuelve
+AdicionalDecorator <|-- ShotExtra
+AdicionalDecorator <|-- CremaBatida
+AdicionalDecorator <|-- JarabeVainilla
+AdicionalDecorator <|-- LecheVegetal
+AdicionalDecorator <|-- SalsaCaramelo
+
+note bottom of AdicionalDecorator
+  Cada adicional delega en la bebida que envuelve
+  y suma su costo/descripcion. Se pueden apilar.
+end note
+@enduml

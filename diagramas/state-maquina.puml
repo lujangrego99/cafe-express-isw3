@@ -1,0 +1,13 @@
+@startuml state-maquina
+title Maquina de estados del Pedido
+skinparam backgroundColor #FFFFFF
+
+[*] --> PENDIENTE : crear pedido
+PENDIENTE --> EN_PREPARACION : preparar
+PENDIENTE --> CANCELADO : cancelar
+EN_PREPARACION --> LISTO : marcarListo
+EN_PREPARACION --> CANCELADO : cancelar
+LISTO --> ENTREGADO : entregar
+ENTREGADO --> [*]
+CANCELADO --> [*]
+@enduml

@@ -1,0 +1,19 @@
+@startuml sec-strategy
+title Colaboracion STRATEGY - aplicar descuento estudiante
+skinparam backgroundColor #FFFFFF
+
+participant PedidoController
+participant CafeService
+participant EstrategiaDescuentoFactory as Factory
+participant "e:DescuentoEstudiante" as e
+participant "p:Pedido" as p
+
+PedidoController -> CafeService : crearPedido(req)
+CafeService -> Factory : desde("estudiante")
+Factory --> CafeService : e
+CafeService -> p : getSubtotal()
+p --> CafeService : 5050
+CafeService -> e : calcularDescuento(5050, p)
+e --> CafeService : 505
+CafeService -> p : aplicarDescuento("Estudiante (10%)", 505)
+@enduml

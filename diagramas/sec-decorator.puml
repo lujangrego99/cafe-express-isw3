@@ -1,0 +1,23 @@
+@startuml sec-decorator
+title Colaboracion DECORATOR - costo de "Latte + Shot + Vainilla"
+skinparam backgroundColor #FFFFFF
+
+participant CafeService
+participant BebidaFactory
+participant "van:JarabeVainilla" as van
+participant "shot:ShotExtra" as shot
+participant "lat:Latte" as lat
+
+CafeService -> BebidaFactory : construir("lat", ["shot","vainilla"])
+BebidaFactory -> lat : new Latte()
+BebidaFactory -> shot : new ShotExtra(lat)
+BebidaFactory -> van : new JarabeVainilla(shot)
+BebidaFactory --> CafeService : van
+
+CafeService -> van : getCosto()
+van -> shot : getCosto()
+shot -> lat : getCosto()
+lat --> shot : 1800
+shot --> van : 2300
+van --> CafeService : 2650
+@enduml

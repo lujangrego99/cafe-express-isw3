@@ -1,0 +1,40 @@
+@startuml general
+title Arquitectura CafeExpress - 4 patrones GOF
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+
+package "web (REST)" {
+  class PedidoController
+  class MenuController
+  class TableroController
+}
+package "service" {
+  class CafeService
+  class MenuService
+}
+package "bebida  <<DECORATOR>>" {
+  interface Bebida
+  abstract class AdicionalDecorator
+}
+package "pedido" {
+  class Pedido
+  package "estado  <<STATE>>" {
+    interface EstadoPedido
+  }
+  package "observer  <<OBSERVER>>" {
+    interface ObservadorPedido
+  }
+}
+package "descuento  <<STRATEGY>>" {
+  interface EstrategiaDescuento
+}
+
+PedidoController --> CafeService
+MenuController --> MenuService
+TableroController --> ObservadorPedido
+CafeService --> Pedido
+CafeService ..> Bebida : arma (Decorator)
+CafeService ..> EstrategiaDescuento : aplica (Strategy)
+Pedido --> EstadoPedido : delega (State)
+Pedido --> ObservadorPedido : notifica (Observer)
+@enduml

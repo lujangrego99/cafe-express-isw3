@@ -1,0 +1,19 @@
+@startuml sec-state
+title Colaboracion STATE - transicion "preparar"
+skinparam backgroundColor #FFFFFF
+
+actor Barista
+participant PedidoController
+participant CafeService
+participant "p:Pedido" as p
+participant "pendiente:PendienteState" as pen
+
+Barista -> PedidoController : POST /pedidos/1/preparar
+PedidoController -> CafeService : prepararPedido(1)
+CafeService -> p : comenzarPreparacion()
+p -> pen : comenzarPreparacion(p)
+pen -> p : cambiarEstado(EN_PREPARACION)
+note over p : estado pasa a EnPreparacionState
+p --> CafeService : (ok)
+CafeService --> PedidoController : PedidoResponse
+@enduml

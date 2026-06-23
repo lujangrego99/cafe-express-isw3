@@ -1,0 +1,20 @@
+@startuml sec-observer
+title Colaboracion OBSERVER - notificacion al cambiar de estado
+skinparam backgroundColor #FFFFFF
+
+participant "p:Pedido" as p
+participant "cocina:PantallaCocina" as c
+participant "notif:NotificadorCliente" as n
+participant "stats:PanelEstadisticas" as s
+
+p -> p : cambiarEstado(nuevoEstado)
+activate p
+p -> c : actualizar(p)
+c --> p
+p -> n : actualizar(p)
+n --> p
+p -> s : actualizar(p)
+s --> p
+deactivate p
+note right of s : Cada observador reacciona\nal mismo evento de forma distinta
+@enduml

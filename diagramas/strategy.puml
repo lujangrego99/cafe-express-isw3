@@ -1,0 +1,34 @@
+@startuml strategy
+title Patron STRATEGY - Politicas de descuento
+skinparam backgroundColor #FFFFFF
+
+class CafeService {
+  +crearPedido(req)
+}
+
+interface EstrategiaDescuento {
+  +getNombre(): String
+  +calcularDescuento(subtotal, Pedido): double
+}
+
+class SinDescuento
+class DescuentoEstudiante
+class DescuentoHappyHour
+class DescuentoFidelidad
+class EstrategiaDescuentoFactory {
+  +desde(tipo): EstrategiaDescuento
+}
+
+CafeService ..> EstrategiaDescuentoFactory : pide la estrategia
+EstrategiaDescuentoFactory ..> EstrategiaDescuento : crea
+CafeService --> EstrategiaDescuento : usa
+EstrategiaDescuento <|.. SinDescuento
+EstrategiaDescuento <|.. DescuentoEstudiante
+EstrategiaDescuento <|.. DescuentoHappyHour
+EstrategiaDescuento <|.. DescuentoFidelidad
+
+note bottom of EstrategiaDescuento
+  La politica de descuento se elige en tiempo de
+  ejecucion segun lo que selecciona el cliente.
+end note
+@enduml

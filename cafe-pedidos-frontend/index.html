@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CafeExpress - Pedidos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+    <!-- ================= Encabezado / navegacion ================= -->
+    <header>
+        <span class="marca">☕ CafeExpress</span>
+        <nav aria-label="Secciones">
+            <button :aria-current="vista === 'mostrador' ? 'page' : false"
+                    @click="vista = 'mostrador'">Mostrador</button>
+            <button :aria-current="vista === 'cocina' ? 'page' : false"
+                    @click="vista = 'cocina'">Cocina</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ===================== VISTA MOSTRADOR ===================== -->
+        <section v-if="vista === 'mostrador'" class="mostrador">
+            <!-- Menu -->
+            <div>
+                <h2>Menu</h2>
+                <p class="vacio" v-if="menu.bases.length === 0">Cargando menu...</p>
+                <div class="menu-grid">
+                    <article v-for="base in menu.bases" :key="base.id" class="card-bebida">
+                        <span class="nombre">{{ base.nombre }}</span>
+                        <span class="precio">{{ fmt(base.precio) }}</span>
+                        <button class="btn btn-secundario" @click="abrirModal(base)">
+                            Personalizar
+                        </button>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Carrito -->
+            <aside class="carrito" aria-label="Tu pedido">
+                <h3>🛒 Tu pedido</h3>
+                <p class="vacio" v-if="carrito.length === 0">Todavia no agregaste nada.</p>
+                <ul v-else>
+                    <li v-for="(item, i) in carrito" :key="i">
+                        <span>{{ item.cantidad }}x {{ item.descripcion }}</span>
+                        <span>
+                            {{ fmt(item.precioUnitario * item.cantidad) }}
+                            <button class="btn btn-peligro" style="min-height:auto;padding:0 .4rem"
+                                    @click="quitarDelCarrito(i)" :aria-label="'Quitar ' + item.descripcion">✖</button>
+                        </span>
+                    </li>
+                </ul>
+
+                <label for="cliente">Nombre del cliente</label>
+                <input id="cliente" type="text" v-model="cliente" placeholder="Ej: Gregorio">
+
+                <label for="descuento">Descuento</label>
+                <select id="descuento" v-model="tipoDescuento">
+                    <option v-for="d in menu.descuentos" :key="d.id" :value="d.id">
+                        {{ d.nombre }} - {{ d.detalle }}
+                    </option>
+                </select>
+
+                <template v-if="tipoDescuento === 'fidelidad'">
+                    <label for="puntos">Puntos a canjear</label>
+                    <input id="puntos" type="number" min="0" v-model.number="puntos">
+                </template>
+
+                <div class="linea-total"><span>Subtotal</span><span>{{ fmt(subtotalCarrito) }}</span></div>
+                <div class="linea-total" v-if="descuentoEstimado > 0">
+                    <span>Descuento</span><span>- {{ fmt(descuentoEstimado) }}</span>
+                </div>
+                <div class="linea-total total"><span>Total</span><span>{{ fmt(totalEstimado) }}</span></div>
+
+                <button class="btn btn-primario btn-block" style="margin-top:.75rem"
+                        :disabled="carrito.length === 0" @click="confirmarPedido">
+                    Confirmar pedido
+                </button>
+            </aside>
+        </section>
+
+        <!-- ===================== VISTA COCINA ===================== -->
+        <section v-if="vista === 'cocina'" class="cocina-layout">
+            <div>
+                <h2>Pantalla de cocina</h2>
+                <p class="vacio" v-if="tickets.length === 0">No hay comandas activas.</p>
+                <div class="cocina-grid">
+                    <article v-for="t in tickets" :key="t.id" class="ticket" :class="t.estado">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <strong>#{{ t.id }} · {{ t.cliente }}</strong>
+                            <span class="badge" :class="t.estado">{{ etiquetaEstado(t.estado) }}</span>
+                        </div>
+                        <ul>
+                            <li v-for="(item, i) in t.items" :key="i">{{ item.cantidad }}x {{ item.descripcion }}</li>
+                        </ul>
+                        <div class="acciones">
+                            <button v-for="a in t.accionesPermitidas" :key="a"
+                                    :class="claseBotonAccion(a)" @click="accion(t.id, a)">
+                                {{ etiquetaAccion(a) }}
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Panel observadores -->
+            <aside class="panel" aria-label="Notificaciones y estadisticas">
+                <h3>🔔 Notificaciones</h3>
+                <p class="vacio" v-if="notificaciones.length === 0">Sin novedades.</p>
+                <ul v-else>
+                    <li v-for="(n, i) in notificaciones.slice(0, 8)" :key="i">{{ n }}</li>
+                </ul>
+
+                <h3 style="margin-top:1rem">📊 Estadisticas</h3>
+                <div class="stat" v-for="(cant, estado) in stats.conteoPorEstado" :key="estado">
+                    <span>{{ etiquetaEstado(estado) }}</span><strong>{{ cant }}</strong>
+                </div>
+                <div class="stat" style="border-top:1px solid var(--crema-borde);margin-top:.4rem;padding-top:.4rem">
+                    <span>Facturado (entregado)</span><strong>{{ fmt(stats.facturacionEntregada) }}</strong>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <!-- ===================== MODAL PERSONALIZAR (Decorator) ===================== -->
+    <div class="modal-fondo" v-if="modalAbierto" @click.self="cerrarModal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+            <h3 id="tituloModal">Personalizar {{ baseSel.nombre }}</h3>
+            <p>Agregale adicionales (cada uno envuelve la bebida: patron Decorator).</p>
+
+            <div v-for="a in menu.adicionales" :key="a.id" class="adicional-item">
+                <input type="checkbox" :id="'adic-' + a.id"
+                       :checked="adicionalesSel.includes(a.id)" @change="toggleAdicional(a.id)">
+                <label :for="'adic-' + a.id" style="margin:0;flex:1;font-weight:500">
+                    {{ a.nombre }} (+{{ fmt(a.precio) }})
+                </label>
+            </div>
+
+            <label for="cantidad">Cantidad</label>
+            <input id="cantidad" type="number" min="1" v-model.number="cantidadSel">
+
+            <div class="preview-precio">{{ descripcionModal }} = {{ fmt(precioModal) }}</div>
+
+            <div style="display:flex;gap:.5rem">
+                <button class="btn btn-secundario btn-block" @click="cerrarModal">Cancelar</button>
+                <button class="btn btn-primario btn-block" @click="agregarAlCarrito">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== TOASTS (aria-live) ===================== -->
+    <div class="toasts" aria-live="polite" role="status">
+        <div v-for="t in toasts" :key="t.id" class="toast" :class="t.tipo">{{ t.mensaje }}</div>
+    </div>
+</div>
+
+<!-- Vue vendorizado para que la demo corra offline; si falta, cae al CDN. -->
+<script src="vendor/vue.global.prod.js"></script>
+<script>window.Vue || document.write('<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"><\/script>');</script>
+<script src="app.js"></script>
+</body>
+</html>
