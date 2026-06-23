@@ -1,0 +1,25 @@
+TRABAJO FINAL INTEGRADOR - INGENIERIA DE SOFTWARE III
+Solucion a problemas de diseno usando UML y Patrones de Diseno
+
+Proyecto: CafeExpress - Sistema de pedidos de cafeteria (full-stack)
+Integrantes (Grupo D): Gregorio Lujan, Manuel Moya, Jan Lahorca, Agustin Martinez
+Docente: Lic. Marcelo Palma
+
+================================================================
+CODIGO FUENTE EN GITHUB (publico):
+  https://github.com/lujangrego99/cafe-express-isw3
+================================================================
+
+CONTENIDO DE ESTE ZIP:
+  - informe/TP-Final-Integrador_CafeExpress.docx   (documento de resolucion - WORD)
+  - informe/TP-Final-Integrador_CafeExpress.pdf    (mismo informe en PDF)
+  - cafe-pedidos-backend/    backend Java + Spring Boot (4 patrones GOF)
+  - cafe-pedidos-frontend/   frontend Vue 3
+  - diagramas/   diagramas UML (clases + secuencia por patron)
+  - wireframes/  prototipado rapido (DCU)
+  - capturas/    capturas de la aplicacion funcionando
+  - docker-compose.yml + COMO-EJECUTAR.md   (como ejecutar)
+
+COMO EJECUTAR (resumen):
+  Con Docker:  docker compose up --build   ->  http://localhost:5500
+  Ver COMO-EJECUTAR.md para el detalle (Docker y manual).
